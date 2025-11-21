@@ -1,0 +1,5 @@
+- Set up CI (GitHub Actions) to build and run tests.
+- Implement the first LLVM optimization pass and hook it into CMake.
+- Add a small example and update README with run instructions.
+- Draft a short roadmap in docs/ and open a few starter issues.
+- Add CONTRIBUTING and code style; enable clang-format.
