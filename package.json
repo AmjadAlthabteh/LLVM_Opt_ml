@@ -1,0 +1,47 @@
+{
+  "name": "ai-debugger",
+  "version": "1.0.0",
+  "description": "AI-powered C++ debugger for automated root cause analysis and fix suggestion",
+  "main": "build/lib/libai_debugger.a",
+  "scripts": {
+    "build": "mkdir -p build && cd build && cmake .. && cmake --build .",
+    "test": "cd build && ctest --output-on-failure",
+    "clean": "rm -rf build",
+    "format": "clang-format -i src/*.cpp include/ai_debugger/*.h",
+    "lint": "clang-tidy src/*.cpp -- -I./include",
+    "install": "cd build && cmake --install .",
+    "examples": "cd build && make && ./examples/simple_example",
+    "docs": "doxygen Doxyfile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ai-debugger.git"
+  },
+  "keywords": [
+    "debugging",
+    "ai",
+    "c++",
+    "crash-analysis",
+    "root-cause",
+    "automated-testing",
+    "llvm"
+  ],
+  "author": "AI Debugger Team",
+  "license": "MIT",
+  "devDependencies": {
+    "clang-format": "^1.7.0",
+    "cmake-js": "^6.3.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
+}
