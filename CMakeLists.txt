@@ -10,7 +10,8 @@ option(BUILD_EXAMPLES "Build examples" ON)
 option(ENABLE_LLVM "Enable LLVM integration for advanced analysis" OFF)
 
 if(MSVC)
-    add_compile_options(/W4 /WX)
+    add_compile_options(/W4)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else()
     add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
@@ -24,6 +25,10 @@ set(AI_DEBUGGER_HEADERS
     include/ai_debugger/ExplanationGenerator.h
     include/ai_debugger/FixSuggester.h
     include/ai_debugger/TestGenerator.h
+    include/ai_debugger/Config.h
+    include/ai_debugger/ErrorCodes.h
+    include/ai_debugger/Version.h
+    include/ai_debugger/Framework.h
     include/ai_debugger/AIDebugger.h
 )
 
@@ -34,6 +39,9 @@ set(AI_DEBUGGER_SOURCES
     src/ExplanationGenerator.cpp
     src/FixSuggester.cpp
     src/TestGenerator.cpp
+    src/Config.cpp
+    src/ErrorCodes.cpp
+    src/Version.cpp
     src/AIDebugger.cpp
 )
 

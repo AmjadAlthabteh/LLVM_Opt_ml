@@ -4,19 +4,12 @@
 #include "StackTraceParser.h"
 #include "RootCausePredictor.h"
 #include "FixSuggester.h"
+#include "Framework.h"
 #include <string>
 #include <vector>
 #include <memory>
 
 namespace ai_debugger {
-
-enum class TestFramework {
-    GTEST,
-    CATCH2,
-    BOOST_TEST,
-    DOCTEST,
-    CUSTOM
-};
 
 struct TestCase {
     std::string name;

@@ -4,15 +4,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "Framework.h"
 
 namespace ai_debugger {
-
-enum class TestFramework {
-    GTEST,
-    CATCH2,
-    BOOST_TEST,
-    DOCTEST
-};
 
 enum class OutputFormat {
     TEXT,

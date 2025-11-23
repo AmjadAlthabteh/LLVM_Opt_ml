@@ -2,7 +2,9 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
-#include <cxxabi.h>
+#if defined(__GNUG__)
+# include <cxxabi.h>
+#endif
 
 namespace ai_debugger {
 

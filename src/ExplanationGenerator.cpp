@@ -269,7 +269,7 @@ std::vector<std::string> ExplanationGenerator::generateStepByStep(
     }
 
     steps.push_back("Error condition triggers in '" + trace.frames[0].function_name + "'");
-    steps.push_back(bugCategoryToString(cause.category) + " occurs");
+    steps.push_back(std::string(bugCategoryToString(cause.category)) + " occurs");
     steps.push_back("Operating system terminates program with signal " + std::to_string(trace.signal_number));
 
     return steps;

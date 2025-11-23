@@ -7,6 +7,7 @@
 #include "ExplanationGenerator.h"
 #include "FixSuggester.h"
 #include "TestGenerator.h"
+#include "Config.h"
 
 #include <string>
 #include <memory>
@@ -58,26 +59,7 @@ private:
     void saveSession(const DebugSession& session);
 };
 
-struct Config {
-    std::string source_directory;
-    std::string test_output_directory;
-    std::string knowledge_base_path;
-    TestFramework test_framework;
-    bool verbose;
-    bool auto_fix;
-    bool auto_test;
-    int detail_level;
-
-    Config()
-        : test_framework(TestFramework::GTEST)
-        , verbose(false)
-        , auto_fix(false)
-        , auto_test(false)
-        , detail_level(2) {}
-
-    static Config fromFile(const std::string& config_path);
-    bool save(const std::string& config_path) const;
-};
+// Config is defined in Config.h
 
 } // namespace ai_debugger
 

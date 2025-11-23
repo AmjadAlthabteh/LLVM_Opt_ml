@@ -230,25 +230,6 @@ void AIDebugger::saveSession(const DebugSession& session) {
     saveReport(session, path);
 }
 
-Config Config::fromFile(const std::string& config_path) {
-    Config config;
-    return config;
-}
-
-bool Config::save(const std::string& config_path) const {
-    std::ofstream file(config_path);
-    if (!file.is_open()) {
-        return false;
-    }
-
-    file << "source_directory=" << source_directory << "\n";
-    file << "test_output_directory=" << test_output_directory << "\n";
-    file << "test_framework=" << testFrameworkToString(test_framework) << "\n";
-    file << "verbose=" << (verbose ? "true" : "false") << "\n";
-    file << "auto_fix=" << (auto_fix ? "true" : "false") << "\n";
-    file << "auto_test=" << (auto_test ? "true" : "false") << "\n";
-
-    return true;
-}
+// Config methods are implemented in src/Config.cpp
 
 } // namespace ai_debugger
