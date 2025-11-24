@@ -36,11 +36,13 @@ public:
 
     void setSourceDirectory(const std::string& src_dir);
     void setTestFramework(TestFramework framework);
+    void setTestOutputDirectory(const std::string& dir);
     void setVerbose(bool verbose);
     void enableAutoFix(bool enable);
     void enableTestGeneration(bool enable);
 
     std::string getReport(const DebugSession& session) const;
+    std::string getReportJSON(const DebugSession& session) const;
     bool saveReport(const DebugSession& session, const std::string& output_path) const;
 
     FixApplication applyBestFix(const DebugSession& session);

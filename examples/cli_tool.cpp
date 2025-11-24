@@ -1,4 +1,5 @@
 #include "ai_debugger/AIDebugger.h"
+#include "ai_debugger/Config.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -15,8 +16,11 @@ void printUsage(const char* program_name) {
     std::cout << "  -o, --output FILE       Save report to file\n";
     std::cout << "  -s, --source DIR        Set source directory\n";
     std::cout << "  --auto-fix              Automatically apply best fix\n";
+    std::cout << "  --apply-all             Apply all suggested fixes\n";
     std::cout << "  --generate-tests        Generate regression tests\n";
     std::cout << "  --framework FRAMEWORK   Test framework (gtest, catch2, boost)\n";
+    std::cout << "  --format FORMAT         Output format (text, json)\n";
+    std::cout << "  --config FILE           Load configuration file\n";
     std::cout << "\nExample:\n";
     std::cout << "  " << program_name << " -v --generate-tests stacktrace.txt\n";
 }
@@ -34,6 +38,9 @@ int main(int argc, char* argv[]) {
     bool verbose = false;
     bool auto_fix = false;
     bool generate_tests = false;
+    bool apply_all = false;
+    std::string format = "text";
+    std::string config_file;
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -59,6 +66,16 @@ int main(int argc, char* argv[]) {
             if (i + 1 < argc) {
                 framework = argv[++i];
             }
+        } else if (arg == "--apply-all") {
+            apply_all = true;
+        } else if (arg == "--format") {
+            if (i + 1 < argc) {
+                format = argv[++i];
+            }
+        } else if (arg == "--config") {
+            if (i + 1 < argc) {
+                config_file = argv[++i];
+            }
         } else if (arg[0] != '-') {
             trace_file = arg;
         }
@@ -71,6 +88,28 @@ int main(int argc, char* argv[]) {
     }
 
     ai_debugger::AIDebugger debugger;
+
+    if (!config_file.empty()) {
+        auto cfg = ai_debugger::ConfigLoader::loadFromFileOrDefault(config_file);
+        debugger.setVerbose(cfg.verbose);
+        debugger.enableAutoFix(cfg.auto_fix);
+        debugger.enableTestGeneration(cfg.auto_test);
+        if (!cfg.source_directory.empty()) {
+            debugger.setSourceDirectory(cfg.source_directory);
+        }
+        if (!cfg.test_output_directory.empty()) {
+            debugger.setTestOutputDirectory(cfg.test_output_directory);
+        }
+        if (cfg.test_framework == ai_debugger::TestFramework::CATCH2) {
+            debugger.setTestFramework(ai_debugger::TestFramework::CATCH2);
+        } else if (cfg.test_framework == ai_debugger::TestFramework::BOOST_TEST) {
+            debugger.setTestFramework(ai_debugger::TestFramework::BOOST_TEST);
+        } else if (cfg.test_framework == ai_debugger::TestFramework::DOCTEST) {
+            debugger.setTestFramework(ai_debugger::TestFramework::DOCTEST);
+        } else {
+            debugger.setTestFramework(ai_debugger::TestFramework::GTEST);
+        }
+    }
 
     debugger.setVerbose(verbose);
     debugger.enableAutoFix(auto_fix);
@@ -98,16 +137,30 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string report = debugger.getReport(session);
-
-    if (output_file.empty()) {
-        std::cout << report;
-    } else {
-        if (debugger.saveReport(session, output_file)) {
-            std::cout << "Report saved to: " << output_file << "\n";
+    if (format == "json") {
+        std::string report_json = debugger.getReportJSON(session);
+        if (output_file.empty()) {
+            std::cout << report_json;
         } else {
-            std::cerr << "Error: Failed to save report\n";
-            return 1;
+            std::ofstream out(output_file);
+            if (!out.is_open()) {
+                std::cerr << "Error: Failed to save report\n";
+                return 1;
+            }
+            out << report_json;
+            std::cout << "Report saved to: " << output_file << "\n";
+        }
+    } else {
+        std::string report = debugger.getReport(session);
+        if (output_file.empty()) {
+            std::cout << report;
+        } else {
+            if (debugger.saveReport(session, output_file)) {
+                std::cout << "Report saved to: " << output_file << "\n";
+            } else {
+                std::cerr << "Error: Failed to save report\n";
+                return 1;
+            }
         }
     }
 
@@ -122,6 +175,23 @@ int main(int argc, char* argv[]) {
             }
         } else {
             std::cerr << "Failed to apply fix: " << result.message << "\n";
+        }
+    }
+
+    if (apply_all && !session.suggested_fixes.empty()) {
+        std::cout << "\nApplying all suggested fixes...\n";
+        auto results = debugger.applyAllFixes(session);
+        bool any_success = false;
+        for (const auto& r : results) {
+            if (r.success) {
+                any_success = true;
+                for (const auto& f : r.modified_files) {
+                    std::cout << "  - Modified: " << f << "\n";
+                }
+            }
+        }
+        if (!any_success) {
+            std::cerr << "No fixes could be applied." << "\n";
         }
     }
 

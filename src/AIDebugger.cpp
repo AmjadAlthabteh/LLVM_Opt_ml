@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iomanip>
 #include <filesystem>
+#include <sstream>
 
 namespace ai_debugger {
 
@@ -33,6 +34,11 @@ void AIDebugger::setTestFramework(TestFramework framework) {
     impl_->test_gen.setFramework(framework);
 }
 
+void AIDebugger::setTestOutputDirectory(const std::string& dir) {
+    impl_->config.test_output_directory = dir;
+    impl_->test_gen.setOutputDirectory(dir);
+}
+
 void AIDebugger::setVerbose(bool verbose) {
     impl_->config.verbose = verbose;
     impl_->parser.setVerbose(verbose);
@@ -53,7 +59,17 @@ DebugSession AIDebugger::analyzeStackTrace(const std::string& trace_text) {
     auto now = std::chrono::system_clock::now();
     auto time = std::chrono::system_clock::to_time_t(now);
     std::ostringstream oss;
-    oss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S");
+    {
+#if defined(_WIN32)
+        std::tm tm_buf{};
+        localtime_s(&tm_buf, &time);
+        oss << std::put_time(&tm_buf, "%Y-%m-%d %H:%M:%S");
+#else
+        std::tm tm_buf{};
+        localtime_r(&time, &tm_buf);
+        oss << std::put_time(&tm_buf, "%Y-%m-%d %H:%M:%S");
+#endif
+    }
     session.timestamp = oss.str();
 
     auto trace_opt = impl_->parser.parse(trace_text);
@@ -153,6 +169,43 @@ std::string AIDebugger::getReport(const DebugSession& session) const {
 
     oss << "=================================================\n";
 
+    return oss.str();
+}
+
+std::string AIDebugger::getReportJSON(const DebugSession& session) const {
+    std::ostringstream oss;
+    oss << "{\n";
+    oss << "  \"session_id\": \"" << session.session_id << "\",\n";
+    oss << "  \"timestamp\": \"" << session.timestamp << "\",\n";
+    oss << "  \"stack\": {\n";
+    oss << "    \"frames\": " << session.trace.frames.size() << ",\n";
+    oss << "    \"error_message\": \"" << session.trace.error_message << "\"\n";
+    oss << "  },\n";
+    oss << "  \"root_causes\": [\n";
+    for (size_t i = 0; i < session.root_causes.size(); ++i) {
+        const auto& cause = session.root_causes[i];
+        oss << "    {\n";
+        oss << "      \"category\": \"" << bugCategoryToString(cause.category) << "\",\n";
+        oss << "      \"confidence\": " << cause.confidence << ",\n";
+        oss << "      \"description\": \"" << cause.description << "\",\n";
+        oss << "      \"location\": { \"file\": \"" << cause.location.file << "\", \"line\": " << cause.location.line << " }\n";
+        oss << "    }" << (i + 1 < session.root_causes.size() ? "," : "") << "\n";
+    }
+    oss << "  ],\n";
+    oss << "  \"explanation\": {\n";
+    oss << "    \"text\": \"" << session.explanation.toPlainText() << "\"\n";
+    oss << "  },\n";
+    oss << "  \"suggested_fixes\": [\n";
+    for (size_t i = 0; i < session.suggested_fixes.size(); ++i) {
+        const auto& fix = session.suggested_fixes[i];
+        oss << "    {\n";
+        oss << "      \"type\": \"" << fixTypeToString(fix.type) << "\",\n";
+        oss << "      \"confidence\": " << fix.confidence << ",\n";
+        oss << "      \"description\": \"" << fix.description << "\"\n";
+        oss << "    }" << (i + 1 < session.suggested_fixes.size() ? "," : "") << "\n";
+    }
+    oss << "  ]\n";
+    oss << "}\n";
     return oss.str();
 }
 
