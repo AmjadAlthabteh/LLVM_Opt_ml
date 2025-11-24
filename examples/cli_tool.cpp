@@ -1,5 +1,7 @@
 #include "ai_debugger/AIDebugger.h"
 #include "ai_debugger/Config.h"
+#include "ai_debugger/Version.h"
+#include "ai_debugger/ErrorCodes.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -9,9 +11,10 @@
 void printUsage(const char* program_name) {
     std::cout << "AI Debugger CLI Tool\n";
     std::cout << "====================\n\n";
-    std::cout << "Usage: " << program_name << " [options] <trace_file>\n\n";
+    std::cout << "Usage: " << program_name << " [options] <trace_file|- >\n\n";
     std::cout << "Options:\n";
     std::cout << "  -h, --help              Show this help message\n";
+    std::cout << "  --version               Show version information\n";
     std::cout << "  -v, --verbose           Enable verbose output\n";
     std::cout << "  -o, --output FILE       Save report to file\n";
     std::cout << "  -s, --source DIR        Set source directory\n";
@@ -28,7 +31,7 @@ void printUsage(const char* program_name) {
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         printUsage(argv[0]);
-        return 1;
+        return static_cast<int>(ai_debugger::ExitCode::USAGE_ERROR);
     }
 
     std::string trace_file;
@@ -47,7 +50,10 @@ int main(int argc, char* argv[]) {
 
         if (arg == "-h" || arg == "--help") {
             printUsage(argv[0]);
-            return 0;
+            return static_cast<int>(ai_debugger::ExitCode::SUCCESS);
+        } else if (arg == "--version") {
+            ai_debugger::Version::printFullInfo();
+            return static_cast<int>(ai_debugger::ExitCode::SUCCESS);
         } else if (arg == "-v" || arg == "--verbose") {
             verbose = true;
         } else if (arg == "-o" || arg == "--output") {
@@ -76,6 +82,8 @@ int main(int argc, char* argv[]) {
             if (i + 1 < argc) {
                 config_file = argv[++i];
             }
+        } else if (arg == "-") {
+            trace_file = arg;
         } else if (arg[0] != '-') {
             trace_file = arg;
         }
@@ -84,7 +92,7 @@ int main(int argc, char* argv[]) {
     if (trace_file.empty()) {
         std::cerr << "Error: No trace file specified\n";
         printUsage(argv[0]);
-        return 1;
+        return static_cast<int>(ai_debugger::ExitCode::USAGE_ERROR);
     }
 
     ai_debugger::AIDebugger debugger;
@@ -130,11 +138,23 @@ int main(int argc, char* argv[]) {
     std::cout << "Analyzing stack trace from: " << trace_file << "\n";
     std::cout << "============================================\n\n";
 
-    auto session = debugger.analyzeFromFile(trace_file);
+    ai_debugger::DebugSession session;
+    if (trace_file == "-") {
+        std::ostringstream buf;
+        buf << std::cin.rdbuf();
+        session = debugger.analyzeStackTrace(buf.str());
+    } else {
+        std::ifstream fcheck(trace_file);
+        if (!fcheck.is_open()) {
+            std::cerr << "Error: File not found: " << trace_file << "\n";
+            return static_cast<int>(ai_debugger::ExitCode::FILE_NOT_FOUND);
+        }
+        session = debugger.analyzeFromFile(trace_file);
+    }
 
     if (session.trace.frames.empty()) {
         std::cerr << "Error: Failed to parse stack trace\n";
-        return 1;
+        return static_cast<int>(ai_debugger::ExitCode::PARSE_ERROR);
     }
 
     if (format == "json") {
@@ -159,9 +179,9 @@ int main(int argc, char* argv[]) {
                 std::cout << "Report saved to: " << output_file << "\n";
             } else {
                 std::cerr << "Error: Failed to save report\n";
-                return 1;
-            }
+            return static_cast<int>(ai_debugger::ExitCode::GENERAL_ERROR);
         }
+    }
     }
 
     if (auto_fix && !session.suggested_fixes.empty()) {
@@ -175,6 +195,7 @@ int main(int argc, char* argv[]) {
             }
         } else {
             std::cerr << "Failed to apply fix: " << result.message << "\n";
+            return static_cast<int>(ai_debugger::ExitCode::FIX_APPLICATION_FAILED);
         }
     }
 
@@ -201,8 +222,9 @@ int main(int argc, char* argv[]) {
             std::cout << "Tests generated successfully!\n";
         } else {
             std::cerr << "Failed to generate tests\n";
+            return static_cast<int>(ai_debugger::ExitCode::TEST_GENERATION_FAILED);
         }
     }
 
-    return 0;
+    return static_cast<int>(ai_debugger::ExitCode::SUCCESS);
 }

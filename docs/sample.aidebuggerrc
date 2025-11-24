@@ -1,0 +1,33 @@
+# AI Debugger Configuration File (sample)
+# Copy to .aidebuggerrc and adjust paths/options.
+
+# Paths
+source_directory = "."
+output_directory = "./build"
+test_output_directory = "./tests/generated"
+
+# Behavior
+verbose = true
+auto_fix = false
+auto_test = true
+interactive = false
+color_output = true
+show_progress = true
+
+# Frameworks and formats
+# test_framework = gtest | catch2 | boost | doctest
+test_framework = gtest
+output_format = text
+log_level = info
+
+# Analysis options
+max_fixes_to_suggest = 5
+confidence_threshold = 0.7
+enable_llvm_analysis = false
+
+# Performance
+max_parallel_tasks = 4
+timeout_seconds = 300
+
+# Custom options
+# custom_key = "custom_value"
