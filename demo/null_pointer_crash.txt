@@ -1,0 +1,12 @@
+Program received signal SIGSEGV, Segmentation fault.
+0x0000555555555269 in processData (ptr=0x0) at src/main.cpp:42
+42          result = ptr->calculate();
+
+Stack trace:
+#0  0x0000555555555269 in processData (ptr=0x0) at src/main.cpp:42
+#1  0x00005555555552a1 in handleRequest () at src/main.cpp:58
+#2  0x00005555555552f3 in main () at src/main.cpp:75
+
+Description:
+Classic null pointer dereference. The pointer 'ptr' is null (0x0)
+and the code tries to call a method on it without checking.

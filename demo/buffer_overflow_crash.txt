@@ -1,0 +1,18 @@
+*** stack smashing detected ***: ./myapp terminated
+Program received signal SIGABRT, Aborted.
+0x00007ffff7a42428 in __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:54
+54      ../sysdeps/unix/sysv/linux/raise.c: No such file or directory.
+
+Stack trace:
+#0  0x00007ffff7a42428 in __GI_raise (sig=sig@entry=6) at raise.c:54
+#1  0x00007ffff7a4402a in __GI_abort () at abort.c:89
+#2  0x00007ffff7a847ea in __libc_message (do_abort=do_abort@entry=1, fmt=fmt@entry=0x7ffff7b9d285 "*** %s ***: %s terminated\n") at ../sysdeps/posix/libc_fatal.c:175
+#3  0x00007ffff7b2615c in __GI___fortify_fail (msg=<optimized out>) at fortify_fail.c:37
+#4  0x00007ffff7b26100 in __stack_chk_fail () at stack_chk_fail.c:28
+#5  0x0000555555555423 in copyBuffer (src=0x555555756260 "Very long string that exceeds buffer size...") at src/utils.cpp:23
+#6  0x00005555555554a8 in processInput () at src/main.cpp:89
+#7  0x00005555555554f0 in main () at src/main.cpp:105
+
+Description:
+Buffer overflow detected by stack canary. The code in copyBuffer()
+writes more data than the buffer can hold, corrupting the stack.

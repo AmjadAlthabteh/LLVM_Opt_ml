@@ -1,0 +1,46 @@
+{
+  "_comment1": "AI Debugger Configuration File",
+  "_comment2": "Rename this file to .aidebuggerrc to use it",
+  "_comment3": "All settings are optional - defaults will be used if not specified",
+
+  "source_directory": "./src",
+  "_source_directory_help": "Path to your source code directory (for applying fixes)",
+
+  "test_output_directory": "./tests",
+  "_test_output_directory_help": "Where to save generated regression tests",
+
+  "verbose": false,
+  "_verbose_help": "Enable verbose output (true/false)",
+
+  "auto_fix": false,
+  "_auto_fix_help": "Automatically apply best fix (⚠ WARNING: modifies source code!)",
+
+  "auto_test": true,
+  "_auto_test_help": "Automatically generate regression tests (true/false)",
+
+  "test_framework": "gtest",
+  "_test_framework_help": "Test framework to use: gtest, catch2, boost, or doctest",
+
+  "_examples": {
+    "_basic_config": {
+      "source_directory": "./src",
+      "test_output_directory": "./tests",
+      "test_framework": "gtest"
+    },
+    "_developer_config": {
+      "source_directory": "./src",
+      "test_output_directory": "./tests",
+      "verbose": true,
+      "auto_test": true,
+      "test_framework": "gtest"
+    },
+    "_auto_fix_config": {
+      "source_directory": "./src",
+      "test_output_directory": "./tests",
+      "verbose": true,
+      "auto_fix": true,
+      "auto_test": true,
+      "test_framework": "gtest"
+    }
+  }
+}

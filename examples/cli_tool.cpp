@@ -9,23 +9,62 @@
 #include <cstring>
 
 void printUsage(const char* program_name) {
-    std::cout << "AI Debugger CLI Tool\n";
-    std::cout << "====================\n\n";
-    std::cout << "Usage: " << program_name << " [options] <trace_file|- >\n\n";
+    std::cout << "╔═══════════════════════════════════════════════════════════════╗\n";
+    std::cout << "║              AI Debugger - Crash Analysis Tool                ║\n";
+    std::cout << "║         Automatically analyze crashes and suggest fixes       ║\n";
+    std::cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
+
+    std::cout << "Usage: " << program_name << " [options] <trace_file|->\n\n";
+
     std::cout << "Options:\n";
     std::cout << "  -h, --help              Show this help message\n";
     std::cout << "  --version               Show version information\n";
     std::cout << "  -v, --verbose           Enable verbose output\n";
     std::cout << "  -o, --output FILE       Save report to file\n";
     std::cout << "  -s, --source DIR        Set source directory\n";
-    std::cout << "  --auto-fix              Automatically apply best fix\n";
+    std::cout << "  --auto-fix              Automatically apply best fix (⚠ modifies code!)\n";
     std::cout << "  --apply-all             Apply all suggested fixes\n";
     std::cout << "  --generate-tests        Generate regression tests\n";
-    std::cout << "  --framework FRAMEWORK   Test framework (gtest, catch2, boost)\n";
+    std::cout << "  --framework FRAMEWORK   Test framework (gtest, catch2, boost, doctest)\n";
     std::cout << "  --format FORMAT         Output format (text, json)\n";
-    std::cout << "  --config FILE           Load configuration file\n";
-    std::cout << "\nExample:\n";
-    std::cout << "  " << program_name << " -v --generate-tests stacktrace.txt\n";
+    std::cout << "  --config FILE           Load configuration file (.aidebuggerrc)\n";
+
+    std::cout << "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    std::cout << "Quick Start Examples:\n";
+    std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+
+    std::cout << "  📋 Basic Analysis:\n";
+    std::cout << "     " << program_name << " crash.log\n\n";
+
+    std::cout << "  📝 Detailed Analysis:\n";
+    std::cout << "     " << program_name << " -v crash.log\n\n";
+
+    std::cout << "  🔧 Auto-Fix (⚠ Be careful!):\n";
+    std::cout << "     " << program_name << " --auto-fix crash.log\n\n";
+
+    std::cout << "  🧪 Generate Tests:\n";
+    std::cout << "     " << program_name << " --generate-tests --framework gtest crash.log\n\n";
+
+    std::cout << "  💾 Save Report:\n";
+    std::cout << "     " << program_name << " -o report.txt crash.log\n\n";
+
+    std::cout << "  📊 JSON Output:\n";
+    std::cout << "     " << program_name << " --format json crash.log\n\n";
+
+    std::cout << "  🚀 Full Analysis with Tests:\n";
+    std::cout << "     " << program_name << " -v --generate-tests -o report.txt crash.log\n\n";
+
+    std::cout << "  📥 Read from stdin:\n";
+    std::cout << "     cat crash.log | " << program_name << " -\n\n";
+
+    std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    std::cout << "New to AI Debugger?\n";
+    std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+    std::cout << "  👉 Try sample crashes:    " << program_name << " demo/null_pointer_crash.txt\n";
+    std::cout << "  📖 Read the guide:        GETTING_STARTED.md\n";
+    std::cout << "  🎯 Quick start script:    quick_start.bat (Windows) or quick_start.sh (Linux/Mac)\n\n";
+
+    std::cout << "For detailed documentation, see README.md or visit the docs/ folder.\n\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -135,8 +174,20 @@ int main(int argc, char* argv[]) {
         debugger.setTestFramework(ai_debugger::TestFramework::GTEST);
     }
 
-    std::cout << "Analyzing stack trace from: " << trace_file << "\n";
-    std::cout << "============================================\n\n";
+    std::cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
+    std::cout << "║                   AI DEBUGGER ANALYSIS                        ║\n";
+    std::cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
+    std::cout << "📁 Input File: " << trace_file << "\n";
+    if (verbose) {
+        std::cout << "🔍 Mode: Verbose\n";
+    }
+    if (auto_fix) {
+        std::cout << "⚠️  Auto-fix enabled (will modify source code)\n";
+    }
+    if (generate_tests) {
+        std::cout << "🧪 Test generation enabled (" << framework << ")\n";
+    }
+    std::cout << "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
     ai_debugger::DebugSession session;
     if (trace_file == "-") {

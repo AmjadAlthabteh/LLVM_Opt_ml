@@ -1,0 +1,16 @@
+Program received signal SIGSEGV, Segmentation fault.
+0x0000555555555380 in getData (obj=0x555555756280) at src/data.cpp:67
+67          return obj->value;
+
+Stack trace:
+#0  0x0000555555555380 in getData (obj=0x555555756280) at src/data.cpp:67
+#1  0x00005555555553c2 in processObject () at src/processor.cpp:34
+#2  0x0000555555555410 in main () at src/main.cpp:92
+
+Memory info:
+Address 0x555555756280 is in a freed block (size=32, allocated at src/main.cpp:85)
+
+Description:
+Use-after-free error. The object was deleted/freed at line 85,
+but code at line 67 still tries to access it. This is a classic
+memory management bug in C++.
