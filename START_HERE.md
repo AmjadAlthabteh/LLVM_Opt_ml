@@ -13,6 +13,24 @@ An AI-powered C++ debugger that automatically:
 
 ---
 
+## Try It RIGHT NOW (10 seconds)
+
+**Already built?** Double-click to run an instant demo:
+
+**Windows:** `TRY_NOW.bat`
+**Linux/Mac:** `./TRY_NOW.sh`
+
+**Have a crash?** Drag your crash file onto `ANALYZE_MY_CRASH.bat` or run:
+```bash
+./ANALYZE_MY_CRASH.sh your_crash.log
+```
+
+**Want to see all examples?** `RUN_ALL_DEMOS.bat` / `./RUN_ALL_DEMOS.sh`
+
+**Need to build first?** Run `build.bat` (Windows) or `./build.sh` (Linux/Mac)
+
+---
+
 ## Quickest Test (30 seconds)
 
 Verify everything is working:

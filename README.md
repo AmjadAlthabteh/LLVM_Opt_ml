@@ -2,6 +2,27 @@
 
 Advanced C++ debugging tool powered by AI techniques for automated root cause analysis, fix suggestion, and regression test generation.
 
+## Try It Now!
+
+**Already built?** Run the instant demo:
+
+**Windows:**
+```batch
+TRY_NOW.bat
+```
+
+**Linux/Mac:**
+```bash
+./TRY_NOW.sh
+```
+
+**Have a crash to analyze?** Drag and drop your crash file onto `ANALYZE_MY_CRASH.bat` (Windows) or run:
+```bash
+./ANALYZE_MY_CRASH.sh your_crash.log
+```
+
+**Need to build first?** See [Building](#building) below or run `build.bat` (Windows) or `./build.sh` (Linux/Mac).
+
 ## Features
 
 - **Stack Trace Parsing**: Parses stack traces from GDB, LLDB, MSVC, and other debuggers
