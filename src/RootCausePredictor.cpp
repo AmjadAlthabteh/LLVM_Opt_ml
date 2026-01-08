@@ -142,6 +142,11 @@ PredictionFeatures RootCausePredictor::extractFeatures(
 
 std::vector<RootCause> RootCausePredictor::applyHeuristics(const PredictionFeatures& features) {
     std::vector<RootCause> causes;
+
+    if (features.error_message.empty()) {
+        return causes;
+    }
+
     causes.reserve(5);
 
     std::string error_lower = features.error_message;

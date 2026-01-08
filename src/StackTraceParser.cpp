@@ -195,6 +195,10 @@ std::optional<StackTrace> StackTraceParser::parseMSVC(const std::string& msvc_ou
 }
 
 std::string StackTraceParser::demangle(const std::string& mangled) {
+    if (mangled.empty()) {
+        return mangled;
+    }
+
 #ifdef __GNUG__
     int status = 0;
     char* demangled = abi::__cxa_demangle(mangled.c_str(), nullptr, nullptr, &status);

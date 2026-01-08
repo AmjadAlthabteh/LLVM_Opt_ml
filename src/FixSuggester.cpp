@@ -294,6 +294,10 @@ std::vector<CodeFix> FixSuggester::generateConcurrencyFixes(const RootCause& cau
 }
 
 std::string FixSuggester::readSourceFile(const std::string& path) {
+    if (path.empty()) {
+        return "";
+    }
+
     std::ifstream file(path);
     if (!file.is_open()) {
         return "";
