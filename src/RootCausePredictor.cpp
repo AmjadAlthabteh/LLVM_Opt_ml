@@ -60,6 +60,7 @@ std::vector<RootCause> RootCausePredictor::predict(
     PredictionFeatures features = extractFeatures(trace, graph_analyzer);
 
     std::vector<RootCause> causes;
+    causes.reserve(10);
 
     auto heuristic_causes = applyHeuristics(features);
     causes.insert(causes.end(), heuristic_causes.begin(), heuristic_causes.end());
@@ -141,6 +142,7 @@ PredictionFeatures RootCausePredictor::extractFeatures(
 
 std::vector<RootCause> RootCausePredictor::applyHeuristics(const PredictionFeatures& features) {
     std::vector<RootCause> causes;
+    causes.reserve(5);
 
     std::string error_lower = features.error_message;
     std::transform(error_lower.begin(), error_lower.end(), error_lower.begin(), ::tolower);

@@ -42,6 +42,7 @@ std::vector<CodeFix> FixSuggester::suggestFixes(
     const StackTrace& trace
 ) {
     std::vector<CodeFix> fixes;
+    fixes.reserve(5);
 
     switch (root_cause.category) {
         case BugCategory::NULL_POINTER:
@@ -169,6 +170,7 @@ void FixSuggester::rollbackFix(const FixApplication& application) {
 
 std::vector<CodeFix> FixSuggester::generateNullCheckFixes(const RootCause& cause) {
     std::vector<CodeFix> fixes;
+    fixes.reserve(3);
 
     CodeFix fix1;
     fix1.type = FixType::NULL_CHECK;
