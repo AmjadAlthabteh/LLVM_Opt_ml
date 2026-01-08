@@ -37,6 +37,10 @@ void StackTraceParser::setVerbose(bool verbose) {
 }
 
 std::optional<StackTrace> StackTraceParser::parse(const std::string& trace_text) {
+    if (trace_text.empty()) {
+        return std::nullopt;
+    }
+
     if (trace_text.find("frame #") != std::string::npos) {
         return parseLLDB(trace_text);
     } else if (trace_text.find("#0") != std::string::npos || trace_text.find("#1") != std::string::npos) {

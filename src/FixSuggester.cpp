@@ -93,6 +93,12 @@ CodeFix FixSuggester::getBestFix(
 FixApplication FixSuggester::applyFix(const CodeFix& fix, bool create_backup) {
     FixApplication application;
 
+    if (fix.location.file.empty() || fix.fixed_code.empty()) {
+        application.success = false;
+        application.message = "Invalid fix: missing file path or code";
+        return application;
+    }
+
     if (impl_->dry_run) {
         application.success = true;
         application.message = "[DRY RUN] Would apply fix to " + fix.location.file;

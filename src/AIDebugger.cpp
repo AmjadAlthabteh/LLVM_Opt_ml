@@ -110,6 +110,10 @@ DebugSession AIDebugger::analyzeStackTrace(const std::string& trace_text) {
 }
 
 DebugSession AIDebugger::analyzeFromFile(const std::string& trace_file) {
+    if (trace_file.empty()) {
+        return DebugSession();
+    }
+
     std::ifstream file(trace_file);
     if (!file.is_open()) {
         return DebugSession();
@@ -117,7 +121,13 @@ DebugSession AIDebugger::analyzeFromFile(const std::string& trace_file) {
 
     std::ostringstream oss;
     oss << file.rdbuf();
-    return analyzeStackTrace(oss.str());
+    std::string content = oss.str();
+
+    if (content.empty()) {
+        return DebugSession();
+    }
+
+    return analyzeStackTrace(content);
 }
 
 std::string AIDebugger::getReport(const DebugSession& session) const {
