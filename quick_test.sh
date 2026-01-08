@@ -5,21 +5,32 @@ echo "AI Debugger - Quick Test"
 echo "================================="
 echo ""
 
-# Test 1: Simple standalone demo
+echo "Test 0: Compiler check..."
+echo "--------------------------"
+if [ -f "./compiler_check.sh" ]; then
+    chmod +x compiler_check.sh 2>/dev/null
+    if ! ./compiler_check.sh; then
+        echo "[WARN] Compiler check failed. Demo build may fail."
+    fi
+else
+    echo "[WARN] compiler_check.sh not found. Skipping compiler check."
+fi
+echo ""
+
 echo "Test 1: Building simple demo..."
 echo "--------------------------------"
 
 g++ -std=c++17 demo/simple_test.cpp -o demo_test 2>&1
 
 if [ $? -eq 0 ]; then
-    echo "✓ Compilation successful"
+    echo "[OK] Compilation successful"
     echo ""
     echo "Running demo..."
     echo ""
     ./demo_test
     echo ""
 else
-    echo "✗ Compilation failed"
+    echo "[FAIL] Compilation failed"
     echo "Trying with explicit includes..."
     g++ -std=c++17 -I./include demo/simple_test.cpp -o demo_test 2>&1
     if [ $? -eq 0 ]; then
@@ -54,17 +65,17 @@ echo "Test 3: CMake configuration check"
 echo "================================="
 echo ""
 
-if command -v cmake &> /dev/null; then
-    echo "✓ CMake found: $(cmake --version | head -1)"
+if command -v cmake > /dev/null 2>&1; then
+    echo "[OK] CMake found: $(cmake --version | head -1)"
     echo ""
     echo "Checking CMakeLists.txt..."
     if [ -f "CMakeLists.txt" ]; then
-        echo "✓ Main CMakeLists.txt exists"
-        grep "project(AIDebugger" CMakeLists.txt > /dev/null && echo "✓ Project configured"
-        grep "add_library(ai_debugger" CMakeLists.txt > /dev/null && echo "✓ Library target defined"
+        echo "[OK] Main CMakeLists.txt exists"
+        grep "project(AIDebugger" CMakeLists.txt > /dev/null && echo "[OK] Project configured"
+        grep "add_library(ai_debugger" CMakeLists.txt > /dev/null && echo "[OK] Library target defined"
     fi
 else
-    echo "⚠ CMake not found (needed for full build)"
+    echo "[WARN] CMake not found (needed for full build)"
 fi
 
 echo ""
@@ -74,16 +85,16 @@ echo "================================="
 echo ""
 
 if [ -f "Makefile" ]; then
-    echo "✓ Makefile exists"
+    echo "[OK] Makefile exists"
 fi
 
 if [ -f "build.sh" ]; then
-    echo "✓ Build script exists"
+    echo "[OK] Build script exists"
     chmod +x build.sh 2>/dev/null
 fi
 
 if [ -f "package.json" ]; then
-    echo "✓ Package configuration exists"
+    echo "[OK] Package configuration exists"
 fi
 
 echo ""

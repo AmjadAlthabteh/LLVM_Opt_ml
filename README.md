@@ -23,6 +23,8 @@ TRY_NOW.bat
 
 **Need to build first?** See [Building](#building) below or run `build.bat` (Windows) or `./build.sh` (Linux/Mac).
 
+**Compiler check:** Run `compiler_check.bat` (Windows) or `./compiler_check.sh` (Linux/Mac) to verify a working C++17 compiler.
+
 ## Features
 
 - **Stack Trace Parsing**: Parses stack traces from GDB, LLDB, MSVC, and other debuggers

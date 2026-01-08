@@ -4,7 +4,6 @@
 #include <chrono>
 #include <iomanip>
 #include <filesystem>
-#include <sstream>
 
 namespace ai_debugger {
 

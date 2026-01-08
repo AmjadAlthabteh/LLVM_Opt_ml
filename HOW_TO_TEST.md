@@ -1,21 +1,24 @@
 # How to Test AI Debugger
 
-## Quick Verification (No Compiler Needed)
+## Quick Verification (No Build Required)
 
-Check that all files are in place:
+Check that all files are in place and the compiler works:
 
 ```bash
 # Linux/macOS
+./compiler_check.sh
 ./quick_test.sh
 
 # Windows
+compiler_check.bat
 quick_test.bat
 ```
 
 This verifies:
-- ✓ All source files exist
-- ✓ Build configuration is valid
-- ✓ Project structure is correct
+- [OK] All source files exist
+- [OK] Build configuration is valid
+- [OK] Project structure is correct
+- [OK] A C++17 compiler can build a tiny program
 
 ## Simple Test (Minimal C++ Compiler)
 
@@ -41,13 +44,13 @@ Parsed 3 frames:
   - process_data (main.cpp:42)
   - handle_request (server.cpp:108)
   - main (main.cpp:15)
-✓ PASS: Correctly parsed stack trace
+[OK] PASS: Correctly parsed stack trace
 
 TEST 2: Bug Type Detection
 ---------------------------
 Error: Segmentation fault: null pointer dereference at 0x0
 Detected: NULL POINTER DEREFERENCE
-✓ PASS: Correctly identified null pointer bug
+[OK] PASS: Correctly identified null pointer bug
 
 TEST 3: Fix Suggestion
 -----------------------
@@ -56,7 +59,7 @@ Add null check:
   if (ptr != nullptr) {
     ptr->method();
   }
-✓ PASS: Generated appropriate fix
+[OK] PASS: Generated appropriate fix
 
 TEST 4: Complete Workflow
 --------------------------
@@ -67,7 +70,7 @@ Analysis Results:
   Bug type: NULL POINTER DEREFERENCE
   Fix available: Yes
 
-✓ PASS: Complete workflow successful
+[OK] PASS: Complete workflow successful
 
 =================================
 SUMMARY: Core functionality verified
@@ -75,10 +78,10 @@ SUMMARY: Core functionality verified
 ```
 
 This proves:
-- ✓ Stack trace parsing works
-- ✓ Bug detection works
-- ✓ Fix generation works
-- ✓ No dependencies needed
+- [OK] Stack trace parsing works
+- [OK] Bug detection works
+- [OK] Fix generation works
+- [OK] No dependencies needed
 
 ## Full Build Test (Requires CMake)
 
@@ -306,7 +309,7 @@ cd /path/to/LLVM-MLOpt_wp
 
 Make scripts executable:
 ```bash
-chmod +x build.sh quick_test.sh
+chmod +x build.sh quick_test.sh compiler_check.sh
 ```
 
 ### "CMake not found"
@@ -365,21 +368,21 @@ After testing, verify:
 ## Success Criteria
 
 **Minimum (Works):**
-- Simple demo runs ✓
-- Parses stack traces ✓
-- Detects common bugs ✓
+- Simple demo runs [OK]
+- Parses stack traces [OK]
+- Detects common bugs [OK]
 
 **Standard (Production Ready):**
-- Full build succeeds ✓
-- All tests pass ✓
-- Examples work ✓
-- Generates fixes ✓
+- Full build succeeds [OK]
+- All tests pass [OK]
+- Examples work [OK]
+- Generates fixes [OK]
 
 **Complete (Fully Validated):**
-- Tested on multiple formats ✓
-- Verified bug detection accuracy ✓
-- Validated fix quality ✓
-- Performance meets specs ✓
+- Tested on multiple formats [OK]
+- Verified bug detection accuracy [OK]
+- Validated fix quality [OK]
+- Performance meets specs [OK]
 
 ---
 

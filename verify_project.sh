@@ -10,10 +10,10 @@ FAIL=0
 
 check() {
     if [ $? -eq 0 ]; then
-        echo "  ✓ $1"
+        echo "  [OK] $1"
         ((PASS++))
     else
-        echo "  ✗ $1"
+        echo "  [FAIL] $1"
         ((FAIL++))
     fi
 }
@@ -80,6 +80,19 @@ check "Build script (Linux)"
 
 [ -f "build.bat" ]
 check "Build script (Windows)"
+
+echo ""
+echo "4b. Compiler Check"
+echo "------------------"
+
+if [ -f "./compiler_check.sh" ]; then
+    chmod +x compiler_check.sh 2>/dev/null
+    ./compiler_check.sh > /dev/null 2>&1
+    check "C++17 compiler works"
+else
+    command -v g++ > /dev/null 2>&1 || command -v clang++ > /dev/null 2>&1 || command -v c++ > /dev/null 2>&1
+    check "C++ compiler available"
+fi
 
 echo ""
 echo "5. Documentation"
@@ -172,7 +185,7 @@ echo "  Failed: $FAIL"
 echo ""
 
 if [ $FAIL -eq 0 ]; then
-    echo "✓ PROJECT VERIFICATION SUCCESSFUL"
+    echo "[OK] PROJECT VERIFICATION SUCCESSFUL"
     echo ""
     echo "Next steps:"
     echo "  1. Review SIMPLE_README.md for overview"
@@ -182,7 +195,7 @@ if [ $FAIL -eq 0 ]; then
     echo ""
     exit 0
 else
-    echo "✗ VERIFICATION FAILED - $FAIL check(s) failed"
+    echo "[FAIL] VERIFICATION FAILED - $FAIL check(s) failed"
     echo ""
     echo "Please check missing files and try again"
     echo ""

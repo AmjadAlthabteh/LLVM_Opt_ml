@@ -4,6 +4,18 @@ echo AI Debugger - Quick Test (Windows)
 echo =================================
 echo.
 
+echo Test 0: Compiler check...
+echo --------------------------------
+if exist compiler_check.bat (
+    call compiler_check.bat
+    if %ERRORLEVEL% NEQ 0 (
+        echo [WARN] Compiler check failed. Demo build may fail.
+    )
+) else (
+    echo [WARN] compiler_check.bat not found. Skipping compiler check.
+)
+echo.
+
 echo Test 1: Building simple demo...
 echo --------------------------------
 echo.

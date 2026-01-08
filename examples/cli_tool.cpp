@@ -9,10 +9,10 @@
 #include <cstring>
 
 void printUsage(const char* program_name) {
-    std::cout << "╔═══════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║              AI Debugger - Crash Analysis Tool                ║\n";
-    std::cout << "║         Automatically analyze crashes and suggest fixes       ║\n";
-    std::cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
+    std::cout << "==============================================================\n";
+    std::cout << "AI Debugger - Crash Analysis Tool\n";
+    std::cout << "Automatically analyze crashes and suggest fixes\n";
+    std::cout << "==============================================================\n\n";
 
     std::cout << "Usage: " << program_name << " [options] <trace_file|->\n\n";
 
@@ -22,49 +22,36 @@ void printUsage(const char* program_name) {
     std::cout << "  -v, --verbose           Enable verbose output\n";
     std::cout << "  -o, --output FILE       Save report to file\n";
     std::cout << "  -s, --source DIR        Set source directory\n";
-    std::cout << "  --auto-fix              Automatically apply best fix (⚠ modifies code!)\n";
+    std::cout << "  --auto-fix              Automatically apply best fix (modifies code)\n";
     std::cout << "  --apply-all             Apply all suggested fixes\n";
     std::cout << "  --generate-tests        Generate regression tests\n";
     std::cout << "  --framework FRAMEWORK   Test framework (gtest, catch2, boost, doctest)\n";
     std::cout << "  --format FORMAT         Output format (text, json)\n";
     std::cout << "  --config FILE           Load configuration file (.aidebuggerrc)\n";
 
-    std::cout << "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-    std::cout << "Quick Start Examples:\n";
-    std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+    std::cout << "\nQuick Start Examples:\n\n";
+    std::cout << "  Basic analysis:\n";
+    std::cout << "    " << program_name << " crash.log\n\n";
+    std::cout << "  Detailed analysis:\n";
+    std::cout << "    " << program_name << " -v crash.log\n\n";
+    std::cout << "  Auto-fix (be careful):\n";
+    std::cout << "    " << program_name << " --auto-fix crash.log\n\n";
+    std::cout << "  Generate tests:\n";
+    std::cout << "    " << program_name << " --generate-tests --framework gtest crash.log\n\n";
+    std::cout << "  Save report:\n";
+    std::cout << "    " << program_name << " -o report.txt crash.log\n\n";
+    std::cout << "  JSON output:\n";
+    std::cout << "    " << program_name << " --format json crash.log\n\n";
+    std::cout << "  Full analysis with tests:\n";
+    std::cout << "    " << program_name << " -v --generate-tests -o report.txt crash.log\n\n";
+    std::cout << "  Read from stdin:\n";
+    std::cout << "    cat crash.log | " << program_name << " -\n\n";
 
-    std::cout << "  📋 Basic Analysis:\n";
-    std::cout << "     " << program_name << " crash.log\n\n";
-
-    std::cout << "  📝 Detailed Analysis:\n";
-    std::cout << "     " << program_name << " -v crash.log\n\n";
-
-    std::cout << "  🔧 Auto-Fix (⚠ Be careful!):\n";
-    std::cout << "     " << program_name << " --auto-fix crash.log\n\n";
-
-    std::cout << "  🧪 Generate Tests:\n";
-    std::cout << "     " << program_name << " --generate-tests --framework gtest crash.log\n\n";
-
-    std::cout << "  💾 Save Report:\n";
-    std::cout << "     " << program_name << " -o report.txt crash.log\n\n";
-
-    std::cout << "  📊 JSON Output:\n";
-    std::cout << "     " << program_name << " --format json crash.log\n\n";
-
-    std::cout << "  🚀 Full Analysis with Tests:\n";
-    std::cout << "     " << program_name << " -v --generate-tests -o report.txt crash.log\n\n";
-
-    std::cout << "  📥 Read from stdin:\n";
-    std::cout << "     cat crash.log | " << program_name << " -\n\n";
-
-    std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     std::cout << "New to AI Debugger?\n";
-    std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
-    std::cout << "  👉 Try sample crashes:    " << program_name << " demo/null_pointer_crash.txt\n";
-    std::cout << "  📖 Read the guide:        GETTING_STARTED.md\n";
-    std::cout << "  🎯 Quick start script:    quick_start.bat (Windows) or quick_start.sh (Linux/Mac)\n\n";
-
-    std::cout << "For detailed documentation, see README.md or visit the docs/ folder.\n\n";
+    std::cout << "  Try sample crashes:    " << program_name << " demo/null_pointer_crash.txt\n";
+    std::cout << "  Read the guide:        GETTING_STARTED.md\n";
+    std::cout << "  Quick start script:    quick_start.bat (Windows) or quick_start.sh (Linux/Mac)\n\n";
+    std::cout << "For detailed documentation, see README.md or the docs/ folder.\n\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -84,6 +71,13 @@ int main(int argc, char* argv[]) {
     std::string format = "text";
     std::string config_file;
 
+    bool verbose_set = false;
+    bool auto_fix_set = false;
+    bool generate_tests_set = false;
+    bool framework_set = false;
+    bool source_dir_set = false;
+    bool format_set = false;
+
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
 
@@ -95,6 +89,7 @@ int main(int argc, char* argv[]) {
             return static_cast<int>(ai_debugger::ExitCode::SUCCESS);
         } else if (arg == "-v" || arg == "--verbose") {
             verbose = true;
+            verbose_set = true;
         } else if (arg == "-o" || arg == "--output") {
             if (i + 1 < argc) {
                 output_file = argv[++i];
@@ -102,20 +97,25 @@ int main(int argc, char* argv[]) {
         } else if (arg == "-s" || arg == "--source") {
             if (i + 1 < argc) {
                 source_dir = argv[++i];
+                source_dir_set = true;
             }
         } else if (arg == "--auto-fix") {
             auto_fix = true;
+            auto_fix_set = true;
         } else if (arg == "--generate-tests") {
             generate_tests = true;
+            generate_tests_set = true;
         } else if (arg == "--framework") {
             if (i + 1 < argc) {
                 framework = argv[++i];
+                framework_set = true;
             }
         } else if (arg == "--apply-all") {
             apply_all = true;
         } else if (arg == "--format") {
             if (i + 1 < argc) {
                 format = argv[++i];
+                format_set = true;
             }
         } else if (arg == "--config") {
             if (i + 1 < argc) {
@@ -123,14 +123,23 @@ int main(int argc, char* argv[]) {
             }
         } else if (arg == "-") {
             trace_file = arg;
-        } else if (arg[0] != '-') {
+        } else if (!arg.empty() && arg[0] != '-') {
             trace_file = arg;
+        } else {
+            std::cerr << "Error: Unknown option: " << arg << "\n";
+            printUsage(argv[0]);
+            return static_cast<int>(ai_debugger::ExitCode::USAGE_ERROR);
         }
     }
 
     if (trace_file.empty()) {
         std::cerr << "Error: No trace file specified\n";
         printUsage(argv[0]);
+        return static_cast<int>(ai_debugger::ExitCode::USAGE_ERROR);
+    }
+
+    if (format != "text" && format != "json") {
+        std::cerr << "Error: Unsupported format: " << format << "\n";
         return static_cast<int>(ai_debugger::ExitCode::USAGE_ERROR);
     }
 
@@ -158,36 +167,45 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    debugger.setVerbose(verbose);
-    debugger.enableAutoFix(auto_fix);
-    debugger.enableTestGeneration(generate_tests);
-
-    if (!source_dir.empty()) {
+    if (verbose_set) {
+        debugger.setVerbose(verbose);
+    }
+    if (auto_fix_set) {
+        debugger.enableAutoFix(auto_fix);
+    }
+    if (generate_tests_set) {
+        debugger.enableTestGeneration(generate_tests);
+    }
+    if (source_dir_set) {
         debugger.setSourceDirectory(source_dir);
     }
 
-    if (framework == "catch2") {
-        debugger.setTestFramework(ai_debugger::TestFramework::CATCH2);
-    } else if (framework == "boost") {
-        debugger.setTestFramework(ai_debugger::TestFramework::BOOST_TEST);
-    } else {
-        debugger.setTestFramework(ai_debugger::TestFramework::GTEST);
+    if (framework_set) {
+        if (framework == "catch2") {
+            debugger.setTestFramework(ai_debugger::TestFramework::CATCH2);
+        } else if (framework == "boost") {
+            debugger.setTestFramework(ai_debugger::TestFramework::BOOST_TEST);
+        } else if (framework == "doctest") {
+            debugger.setTestFramework(ai_debugger::TestFramework::DOCTEST);
+        } else {
+            debugger.setTestFramework(ai_debugger::TestFramework::GTEST);
+        }
     }
 
-    std::cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║                   AI DEBUGGER ANALYSIS                        ║\n";
-    std::cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
-    std::cout << "📁 Input File: " << trace_file << "\n";
+    std::cout << "\n==============================================================\n";
+    std::cout << "AI DEBUGGER ANALYSIS\n";
+    std::cout << "==============================================================\n\n";
+    std::cout << "Input File: " << trace_file << "\n";
     if (verbose) {
-        std::cout << "🔍 Mode: Verbose\n";
+        std::cout << "Mode: Verbose\n";
     }
     if (auto_fix) {
-        std::cout << "⚠️  Auto-fix enabled (will modify source code)\n";
+        std::cout << "Auto-fix enabled (will modify source code)\n";
     }
     if (generate_tests) {
-        std::cout << "🧪 Test generation enabled (" << framework << ")\n";
+        std::cout << "Test generation enabled (" << framework << ")\n";
     }
-    std::cout << "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+    std::cout << "\n--------------------------------------------------------------\n\n";
 
     ai_debugger::DebugSession session;
     if (trace_file == "-") {
@@ -216,7 +234,7 @@ int main(int argc, char* argv[]) {
             std::ofstream out(output_file);
             if (!out.is_open()) {
                 std::cerr << "Error: Failed to save report\n";
-                return 1;
+                return static_cast<int>(ai_debugger::ExitCode::GENERAL_ERROR);
             }
             out << report_json;
             std::cout << "Report saved to: " << output_file << "\n";
@@ -230,9 +248,9 @@ int main(int argc, char* argv[]) {
                 std::cout << "Report saved to: " << output_file << "\n";
             } else {
                 std::cerr << "Error: Failed to save report\n";
-            return static_cast<int>(ai_debugger::ExitCode::GENERAL_ERROR);
+                return static_cast<int>(ai_debugger::ExitCode::GENERAL_ERROR);
+            }
         }
-    }
     }
 
     if (auto_fix && !session.suggested_fixes.empty()) {
@@ -263,7 +281,7 @@ int main(int argc, char* argv[]) {
             }
         }
         if (!any_success) {
-            std::cerr << "No fixes could be applied." << "\n";
+            std::cerr << "No fixes could be applied.\n";
         }
     }
 

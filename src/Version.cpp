@@ -5,7 +5,7 @@
 namespace ai_debugger {
 
 // builds the basic numeric version string (e.g., "1.2.0")
-// uses simple concatenation so it staysw readable and predictable
+// uses simple concatenation so it stays readable and predictable
 std::string Version::getVersionString() {
     std::ostringstream oss;
     oss << AI_DEBUGGER_VERSION_MAJOR << "."
@@ -63,7 +63,7 @@ bool Version::hasGTestSupport() {
 }
 
 // produces a human-readable list of features compiled into this build
-// this helps users quickly understand what their build is capwable of
+// this helps users quickly understand what their build is capable of
 std::string Version::getFeatureList() {
     std::ostringstream oss;
     oss << "features:";  // 
@@ -97,4 +97,4 @@ void Version::printFullInfo() {
     std::cout << getFeatureList() << "\n";
 }
 
-} // namespace ai_debuggr
+} // namespace ai_debugger
