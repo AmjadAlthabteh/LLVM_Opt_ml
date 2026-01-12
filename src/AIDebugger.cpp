@@ -183,38 +183,11 @@ std::string AIDebugger::getReport(const DebugSession& session) const {
 
 std::string AIDebugger::getReportJSON(const DebugSession& session) const {
     std::ostringstream oss;
-    oss << "{\n";
-    oss << "  \"session_id\": \"" << session.session_id << "\",\n";
-    oss << "  \"timestamp\": \"" << session.timestamp << "\",\n";
-    oss << "  \"stack\": {\n";
-    oss << "    \"frames\": " << session.trace.frames.size() << ",\n";
-    oss << "    \"error_message\": \"" << session.trace.error_message << "\"\n";
-    oss << "  },\n";
-    oss << "  \"root_causes\": [\n";
-    for (size_t i = 0; i < session.root_causes.size(); ++i) {
-        const auto& cause = session.root_causes[i];
-        oss << "    {\n";
-        oss << "      \"category\": \"" << bugCategoryToString(cause.category) << "\",\n";
-        oss << "      \"confidence\": " << cause.confidence << ",\n";
-        oss << "      \"description\": \"" << cause.description << "\",\n";
-        oss << "      \"location\": { \"file\": \"" << cause.location.file << "\", \"line\": " << cause.location.line << " }\n";
-        oss << "    }" << (i + 1 < session.root_causes.size() ? "," : "") << "\n";
-    }
-    oss << "  ],\n";
-    oss << "  \"explanation\": {\n";
-    oss << "    \"text\": \"" << session.explanation.toPlainText() << "\"\n";
-    oss << "  },\n";
-    oss << "  \"suggested_fixes\": [\n";
-    for (size_t i = 0; i < session.suggested_fixes.size(); ++i) {
-        const auto& fix = session.suggested_fixes[i];
-        oss << "    {\n";
-        oss << "      \"type\": \"" << fixTypeToString(fix.type) << "\",\n";
-        oss << "      \"confidence\": " << fix.confidence << ",\n";
-        oss << "      \"description\": \"" << fix.description << "\"\n";
-        oss << "    }" << (i + 1 < session.suggested_fixes.size() ? "," : "") << "\n";
-    }
-    oss << "  ]\n";
-    oss << "}\n";
+    oss << "{\"session_id\":\"" << session.session_id << "\",";
+    oss << "\"frames\":" << session.trace.frames.size() << ",";
+    oss << "\"error\":\"" << session.trace.error_message << "\",";
+    oss << "\"causes\":" << session.root_causes.size() << ",";
+    oss << "\"fixes\":" << session.suggested_fixes.size() << "}";
     return oss.str();
 }
 
