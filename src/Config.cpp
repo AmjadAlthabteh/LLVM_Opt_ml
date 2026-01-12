@@ -272,17 +272,7 @@ LogLevel Config::stringToLogLevel(const std::string& str) {
 }
 
 std::string Config::toString() const {
-    std::ostringstream oss;
-    oss << "Configuration:\n";
-    oss << "  Source directory: " << source_directory << "\n";
-    oss << "  Output directory: " << output_directory << "\n";
-    oss << "  Test framework: " << testFrameworkToString(test_framework) << "\n";
-    oss << "  Output format: " << outputFormatToString(output_format) << "\n";
-    oss << "  Log level: " << logLevelToString(log_level) << "\n";
-    oss << "  Verbose: " << (verbose ? "yes" : "no") << "\n";
-    oss << "  Auto-fix: " << (auto_fix ? "yes" : "no") << "\n";
-    oss << "  Auto-test: " << (auto_test ? "yes" : "no") << "\n";
-    return oss.str();
+    return "Config: " + source_directory + " [" + testFrameworkToString(test_framework) + "]";
 }
 
 Config ConfigLoader::loadDefault() {
