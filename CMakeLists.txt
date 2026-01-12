@@ -121,10 +121,3 @@ add_custom_target(format
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-format"
 )
-
-message(STATUS "AI Debugger Configuration:")
-message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "  C++ standard: ${CMAKE_CXX_STANDARD}")
-message(STATUS "  Build tests: ${BUILD_TESTS}")
-message(STATUS "  Build examples: ${BUILD_EXAMPLES}")
-message(STATUS "  Enable LLVM: ${ENABLE_LLVM}")
