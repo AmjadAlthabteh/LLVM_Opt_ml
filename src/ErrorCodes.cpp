@@ -5,41 +5,11 @@ namespace ai_debugger {
 
 std::string ErrorInfo::toString() const {
     if (!isError()) return "";
-
-    std::ostringstream oss;
-    oss << "Error [" << ErrorHandler::getCategoryName(category) << "]: " << message;
-
-    if (!location.empty()) {
-        oss << "\n  Location: " << location;
-    }
-
-    if (!hint.empty()) {
-        oss << "\n  Hint: " << hint;
-    }
-
-    oss << "\n  Exit code: " << static_cast<int>(code);
-
-    return oss.str();
+    return "Error: " + message;
 }
 
 std::string ErrorInfo::toJSON() const {
-    std::ostringstream oss;
-    oss << "{\n";
-    oss << "  \"error\": true,\n";
-    oss << "  \"code\": " << static_cast<int>(code) << ",\n";
-    oss << "  \"category\": \"" << ErrorHandler::getCategoryName(category) << "\",\n";
-    oss << "  \"message\": \"" << message << "\"";
-
-    if (!location.empty()) {
-        oss << ",\n  \"location\": \"" << location << "\"";
-    }
-
-    if (!hint.empty()) {
-        oss << ",\n  \"hint\": \"" << hint << "\"";
-    }
-
-    oss << "\n}";
-    return oss.str();
+    return "{\"error\":\"" + message + "\"}";
 }
 
 ErrorInfo ErrorHandler::createFileNotFound(const std::string& filepath) {
