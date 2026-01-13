@@ -132,52 +132,23 @@ DebugSession AIDebugger::analyzeFromFile(const std::string& trace_file) {
 
 std::string AIDebugger::getReport(const DebugSession& session) const {
     std::ostringstream oss;
-
-    oss << "=================================================\n";
-    oss << "AI DEBUGGER ANALYSIS REPORT\n";
-    oss << "=================================================\n\n";
-
-    oss << "Session ID: " << session.session_id << "\n";
-    oss << "Timestamp: " << session.timestamp << "\n\n";
-
-    oss << "STACK TRACE SUMMARY\n";
-    oss << "-------------------\n";
+    oss << "Session: " << session.session_id << "\n";
     oss << "Frames: " << session.trace.frames.size() << "\n";
-    oss << "Error Message: " << session.trace.error_message << "\n\n";
+    oss << "Error: " << session.trace.error_message << "\n";
 
     if (!session.root_causes.empty()) {
-        oss << "ROOT CAUSE ANALYSIS\n";
-        oss << "-------------------\n";
-        for (size_t i = 0; i < session.root_causes.size(); ++i) {
-            const auto& cause = session.root_causes[i];
-            oss << (i + 1) << ". " << bugCategoryToString(cause.category)
-                << " (Confidence: " << (cause.confidence * 100) << "%)\n";
-            oss << "   " << cause.description << "\n";
-            if (!cause.location.file.empty()) {
-                oss << "   Location: " << cause.location.file << ":"
-                    << cause.location.line << "\n";
-            }
-            oss << "\n";
+        oss << "\nRoot Causes:\n";
+        for (const auto& cause : session.root_causes) {
+            oss << "- " << cause.description << "\n";
         }
     }
-
-    oss << "\n" << session.explanation.toPlainText() << "\n";
 
     if (!session.suggested_fixes.empty()) {
-        oss << "\nSUGGESTED FIXES\n";
-        oss << "---------------\n";
-        for (size_t i = 0; i < session.suggested_fixes.size(); ++i) {
-            const auto& fix = session.suggested_fixes[i];
-            oss << (i + 1) << ". " << fixTypeToString(fix.type)
-                << " (Confidence: " << (fix.confidence * 100) << "%)\n";
-            oss << "   " << fix.description << "\n\n";
-            oss << "   Original:\n   " << fix.original_code << "\n\n";
-            oss << "   Fixed:\n   " << fix.fixed_code << "\n\n";
+        oss << "\nFixes:\n";
+        for (const auto& fix : session.suggested_fixes) {
+            oss << "- " << fix.description << "\n";
         }
     }
-
-    oss << "=================================================\n";
-
     return oss.str();
 }
 
