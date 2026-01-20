@@ -57,19 +57,15 @@ DebugSession AIDebugger::analyzeStackTrace(const std::string& trace_text) {
 
     auto now = std::chrono::system_clock::now();
     auto time = std::chrono::system_clock::to_time_t(now);
-    std::ostringstream oss;
-    {
+    std::tm tm_buf{};
 #if defined(_WIN32)
-        std::tm tm_buf{};
-        localtime_s(&tm_buf, &time);
-        oss << std::put_time(&tm_buf, "%Y-%m-%d %H:%M:%S");
+    localtime_s(&tm_buf, &time);
 #else
-        std::tm tm_buf{};
-        localtime_r(&time, &tm_buf);
-        oss << std::put_time(&tm_buf, "%Y-%m-%d %H:%M:%S");
+    localtime_r(&time, &tm_buf);
 #endif
-    }
-    session.timestamp = oss.str();
+    char buffer[32];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &tm_buf);
+    session.timestamp = buffer;
 
     auto trace_opt = impl_->parser.parse(trace_text);
     if (!trace_opt) {
@@ -110,24 +106,13 @@ DebugSession AIDebugger::analyzeStackTrace(const std::string& trace_text) {
 }
 
 DebugSession AIDebugger::analyzeFromFile(const std::string& trace_file) {
-    if (trace_file.empty()) {
-        return DebugSession();
-    }
-
     std::ifstream file(trace_file);
-    if (!file.is_open()) {
-        return DebugSession();
-    }
+    if (!file.is_open()) return DebugSession();
 
-    std::ostringstream oss;
-    oss << file.rdbuf();
-    std::string content = oss.str();
+    std::string content((std::istreambuf_iterator<char>(file)),
+                        std::istreambuf_iterator<char>());
 
-    if (content.empty()) {
-        return DebugSession();
-    }
-
-    return analyzeStackTrace(content);
+    return content.empty() ? DebugSession() : analyzeStackTrace(content);
 }
 
 std::string AIDebugger::getReport(const DebugSession& session) const {
