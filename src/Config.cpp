@@ -48,18 +48,18 @@ bool Config::loadFromFile(const std::string& filepath) {
 
         // Parse key=value pairs
         size_t pos = line.find('=');
-        if (pos == std::string::npos) {
-            continue;
-        }
+        if (pos == std::string::npos) continue;
 
-        std::string key = line.substr(0, pos);
-        std::string value = line.substr(pos + 1);
+        // Trim inline to avoid extra allocations
+        size_t key_start = line.find_first_not_of(" \t");
+        size_t key_end = std::min(pos, line.find_last_not_of(" \t", pos - 1) + 1);
+        size_t val_start = line.find_first_not_of(" \t", pos + 1);
+        size_t val_end = line.find_last_not_of(" \t") + 1;
 
-        // Trim whitespace
-        key.erase(0, key.find_first_not_of(" \t"));
-        key.erase(key.find_last_not_of(" \t") + 1);
-        value.erase(0, value.find_first_not_of(" \t"));
-        value.erase(value.find_last_not_of(" \t") + 1);
+        if (key_start == std::string::npos || val_start == std::string::npos) continue;
+
+        std::string key = line.substr(key_start, key_end - key_start);
+        std::string value = line.substr(val_start, val_end - val_start);
 
         // Remove quotes if present
         if (value.size() >= 2 && value[0] == '"' && value[value.size()-1] == '"') {
