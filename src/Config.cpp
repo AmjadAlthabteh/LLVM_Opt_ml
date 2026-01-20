@@ -157,26 +157,14 @@ bool Config::saveToFile(const std::string& filepath) const {
 }
 
 bool Config::validate(std::string& error_message) const {
-    if (max_fixes_to_suggest < 1 || max_fixes_to_suggest > 100) {
-        error_message = "max_fixes_to_suggest must be between 1 and 100";
+    if (max_fixes_to_suggest < 1) {
+        error_message = "invalid max_fixes_to_suggest";
         return false;
     }
-
     if (confidence_threshold < 0.0 || confidence_threshold > 1.0) {
-        error_message = "confidence_threshold must be between 0.0 and 1.0";
+        error_message = "invalid confidence_threshold";
         return false;
     }
-
-    if (max_parallel_tasks < 1 || max_parallel_tasks > 128) {
-        error_message = "max_parallel_tasks must be between 1 and 128";
-        return false;
-    }
-
-    if (timeout_seconds < 1) {
-        error_message = "timeout_seconds must be positive";
-        return false;
-    }
-
     return true;
 }
 
