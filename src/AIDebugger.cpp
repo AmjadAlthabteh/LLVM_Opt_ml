@@ -116,35 +116,34 @@ DebugSession AIDebugger::analyzeFromFile(const std::string& trace_file) {
 }
 
 std::string AIDebugger::getReport(const DebugSession& session) const {
-    std::ostringstream oss;
-    oss << "Session: " << session.session_id << "\n";
-    oss << "Frames: " << session.trace.frames.size() << "\n";
-    oss << "Error: " << session.trace.error_message << "\n";
+    std::string report;
+    report.reserve(512);
+    report += "Session: " + session.session_id + "\n";
+    report += "Frames: " + std::to_string(session.trace.frames.size()) + "\n";
+    report += "Error: " + session.trace.error_message + "\n";
 
     if (!session.root_causes.empty()) {
-        oss << "\nRoot Causes:\n";
+        report += "\nRoot Causes:\n";
         for (const auto& cause : session.root_causes) {
-            oss << "- " << cause.description << "\n";
+            report += "- " + cause.description + "\n";
         }
     }
 
     if (!session.suggested_fixes.empty()) {
-        oss << "\nFixes:\n";
+        report += "\nFixes:\n";
         for (const auto& fix : session.suggested_fixes) {
-            oss << "- " << fix.description << "\n";
+            report += "- " + fix.description + "\n";
         }
     }
-    return oss.str();
+    return report;
 }
 
 std::string AIDebugger::getReportJSON(const DebugSession& session) const {
-    std::ostringstream oss;
-    oss << "{\"session_id\":\"" << session.session_id << "\",";
-    oss << "\"frames\":" << session.trace.frames.size() << ",";
-    oss << "\"error\":\"" << session.trace.error_message << "\",";
-    oss << "\"causes\":" << session.root_causes.size() << ",";
-    oss << "\"fixes\":" << session.suggested_fixes.size() << "}";
-    return oss.str();
+    return "{\"session_id\":\"" + session.session_id + "\"," +
+           "\"frames\":" + std::to_string(session.trace.frames.size()) + "," +
+           "\"error\":\"" + session.trace.error_message + "\"," +
+           "\"causes\":" + std::to_string(session.root_causes.size()) + "," +
+           "\"fixes\":" + std::to_string(session.suggested_fixes.size()) + "}";
 }
 
 bool AIDebugger::saveReport(const DebugSession& session, const std::string& output_path) const {
