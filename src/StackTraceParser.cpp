@@ -1,9 +1,7 @@
 #include "ai_debugger/StackTraceParser.h"
 #include <sstream>
-#include <iostream>
-#include <algorithm>
-#if defined(__GNUG__)
-# include <cxxabi.h>
+#ifdef __GNUG__
+#include <cxxabi.h>
 #endif
 
 namespace ai_debugger {

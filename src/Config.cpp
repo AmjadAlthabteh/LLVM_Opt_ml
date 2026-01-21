@@ -1,23 +1,14 @@
 #include "ai_debugger/Config.h"
 #include <fstream>
-#include <sstream>
 #include <iostream>
-#include <algorithm>
-#include <cstdlib>
 
 #ifdef _WIN32
-#include <windows.h>
-#include <shlobj.h>
-// Avoid macro name collisions with enum values (e.g., ERROR, WARNING)
 #ifdef ERROR
 #undef ERROR
 #endif
 #ifdef WARNING
 #undef WARNING
 #endif
-#else
-#include <unistd.h>
-#include <pwd.h>
 #endif
 
 namespace ai_debugger {
