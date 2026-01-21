@@ -11,21 +11,25 @@ namespace ai_debugger {
 struct StackTraceParser::Impl {
     bool verbose = false;
 
-    std::regex gdb_frame_regex{
-        R"(#(\d+)\s+(?:0x[0-9a-fA-F]+\s+in\s+)?([^\s]+)\s*\(([^\)]*)\)\s*(?:at\s+([^:]+):(\d+))?)"
-    };
+    static const std::regex& gdb_frame_regex() {
+        static const std::regex regex{R"(#(\d+)\s+(?:0x[0-9a-fA-F]+\s+in\s+)?([^\s]+)\s*\(([^\)]*)\)\s*(?:at\s+([^:]+):(\d+))?)"};
+        return regex;
+    }
 
-    std::regex lldb_frame_regex{
-        R"(frame\s+#(\d+):\s+0x[0-9a-fA-F]+\s+([^\s`]+)`([^\s+]+)\s*(?:\+\s*\d+)?\s*(?:at\s+([^:]+):(\d+))?)"
-    };
+    static const std::regex& lldb_frame_regex() {
+        static const std::regex regex{R"(frame\s+#(\d+):\s+0x[0-9a-fA-F]+\s+([^\s`]+)`([^\s+]+)\s*(?:\+\s*\d+)?\s*(?:at\s+([^:]+):(\d+))?)"};
+        return regex;
+    }
 
-    std::regex addr2line_regex{
-        R"(([^\s]+)\s+at\s+([^:]+):(\d+))"
-    };
+    static const std::regex& addr2line_regex() {
+        static const std::regex regex{R"(([^\s]+)\s+at\s+([^:]+):(\d+))"};
+        return regex;
+    }
 
-    std::regex msvc_regex{
-        R"(([^\(]+)\((\d+)\):\s*(.*))"
-    };
+    static const std::regex& msvc_regex() {
+        static const std::regex regex{R"(([^\(]+)\((\d+)\):\s*(.*))"};
+        return regex;
+    }
 };
 
 StackTraceParser::StackTraceParser() : impl_(std::make_unique<Impl>()) {}
@@ -82,7 +86,7 @@ std::optional<StackTrace> StackTraceParser::parseGDB(const std::string& gdb_outp
 
 bool StackTraceParser::parseGDBFrame(const std::string& line, StackFrame& frame) {
     std::smatch match;
-    if (std::regex_search(line, match, impl_->gdb_frame_regex)) {
+    if (std::regex_search(line, match, impl_->gdb_frame_regex())) {
         frame.mangled_name = match[2].str();
         frame.function_name = demangle(frame.mangled_name);
 
@@ -130,7 +134,7 @@ std::optional<StackTrace> StackTraceParser::parseLLDB(const std::string& lldb_ou
 
 bool StackTraceParser::parseLLDBFrame(const std::string& line, StackFrame& frame) {
     std::smatch match;
-    if (std::regex_search(line, match, impl_->lldb_frame_regex)) {
+    if (std::regex_search(line, match, impl_->lldb_frame_regex())) {
         frame.module = match[2].str();
         frame.mangled_name = match[3].str();
         frame.function_name = demangle(frame.mangled_name);
@@ -153,7 +157,7 @@ std::optional<StackTrace> StackTraceParser::parseBacktrace(const std::string& bt
     int frame_index = 0;
     while (std::getline(stream, line)) {
         std::smatch match;
-        if (std::regex_search(line, match, impl_->addr2line_regex)) {
+        if (std::regex_search(line, match, impl_->addr2line_regex())) {
             StackFrame frame;
             frame.function_name = demangle(match[1].str());
             frame.mangled_name = match[1].str();
@@ -178,7 +182,7 @@ std::optional<StackTrace> StackTraceParser::parseMSVC(const std::string& msvc_ou
 
     while (std::getline(stream, line)) {
         std::smatch match;
-        if (std::regex_search(line, match, impl_->msvc_regex)) {
+        if (std::regex_search(line, match, impl_->msvc_regex())) {
             StackFrame frame;
             frame.location.file = match[1].str();
             frame.location.line = std::stoi(match[2].str());
