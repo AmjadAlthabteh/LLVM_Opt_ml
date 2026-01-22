@@ -1,9 +1,8 @@
 #include "ai_debugger/AIDebugger.h"
 #include <fstream>
-#include <sstream>
 #include <chrono>
-#include <iomanip>
 #include <filesystem>
+#include <algorithm>
 
 namespace ai_debugger {
 
@@ -190,6 +189,7 @@ bool AIDebugger::generateTests(const DebugSession& session) {
 
 std::vector<std::string> AIDebugger::listSessions() const {
     std::vector<std::string> session_ids;
+    session_ids.reserve(impl_->sessions.size());
     for (const auto& session : impl_->sessions) {
         session_ids.push_back(session.session_id);
     }
@@ -197,12 +197,9 @@ std::vector<std::string> AIDebugger::listSessions() const {
 }
 
 DebugSession AIDebugger::loadSession(const std::string& session_id) const {
-    for (const auto& session : impl_->sessions) {
-        if (session.session_id == session_id) {
-            return session;
-        }
-    }
-    return DebugSession();
+    auto it = std::find_if(impl_->sessions.begin(), impl_->sessions.end(),
+                           [&session_id](const auto& s) { return s.session_id == session_id; });
+    return it != impl_->sessions.end() ? *it : DebugSession();
 }
 
 std::string AIDebugger::generateSessionId() const {
