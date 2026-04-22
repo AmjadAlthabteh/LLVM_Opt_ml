@@ -1,6 +1,6 @@
-# AI Debugger
+# Debugger
 
-Advanced C++ debugging tool powered by AI techniques for automated root cause analysis, fix suggestion, and regression test generation.
+Advanced C++ debugging tool powered by  techniques for automated root cause analysis, fix suggestion, and regression test generation.
 
 ## Try It Now!
 
@@ -289,11 +289,6 @@ Contributions welcome. Areas of interest:
 - ML model integration
 - Performance optimizations
 - Documentation improvements
-
-## License
-
-MIT License
-
 ## Support
 
 For issues and questions:
