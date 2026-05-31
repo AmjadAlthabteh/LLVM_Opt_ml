@@ -5,7 +5,6 @@
 #include <vector>
 #include <memory>
 #include <optional>
-#include <regex>
 
 namespace ai_debugger {
 
@@ -53,6 +52,10 @@ public:
 
     void setVerbose(bool verbose);
 
+    // Utility for parsing "file:line[:column]" from tool output.
+    // Supports Windows paths like "C:\\dir\\file.cpp:12:3".
+    std::optional<SourceLocation> extractLocation(const std::string& text);
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;
@@ -60,7 +63,6 @@ private:
     bool parseGDBFrame(const std::string& line, StackFrame& frame);
     bool parseLLDBFrame(const std::string& line, StackFrame& frame);
     std::string demangle(const std::string& mangled);
-    std::optional<SourceLocation> extractLocation(const std::string& text);
 };
 
 } // namespace ai_debugger

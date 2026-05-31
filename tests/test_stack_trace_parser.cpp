@@ -56,6 +56,17 @@ TEST(StackTraceParserTest, ExtractLocation) {
     EXPECT_EQ(loc->column, 10);
 }
 
+TEST(StackTraceParserTest, ExtractLocationWindowsPath) {
+    StackTraceParser parser;
+
+    auto loc = parser.extractLocation(R"(C:\src\project\file.cpp:12:3)");
+
+    ASSERT_TRUE(loc.has_value());
+    EXPECT_EQ(loc->file, R"(C:\src\project\file.cpp)");
+    EXPECT_EQ(loc->line, 12);
+    EXPECT_EQ(loc->column, 3);
+}
+
 TEST(StackTraceParserTest, EmptyTrace) {
     StackTraceParser parser;
 

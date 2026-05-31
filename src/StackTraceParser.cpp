@@ -1,5 +1,9 @@
 #include "ai_debugger/StackTraceParser.h"
+#include <charconv>
+#include <cctype>
 #include <sstream>
+#include <string_view>
+#include <system_error>
 #ifdef __GNUG__
 #include <cxxabi.h>
 #endif
@@ -211,18 +215,69 @@ std::string StackTraceParser::demangle(const std::string& mangled) {
 }
 
 std::optional<SourceLocation> StackTraceParser::extractLocation(const std::string& text) {
-    std::regex loc_regex(R"(([^:]+):(\d+)(?::(\d+))?)");
-    std::smatch match;
-    if (std::regex_search(text, match, loc_regex)) {
-        SourceLocation loc;
-        loc.file = match[1].str();
-        loc.line = std::stoi(match[2].str());
-        if (match[3].matched) {
-            loc.column = std::stoi(match[3].str());
+    auto trim = [](std::string_view sv) -> std::string_view {
+        while (!sv.empty() && std::isspace(static_cast<unsigned char>(sv.front()))) {
+            sv.remove_prefix(1);
         }
+        while (!sv.empty() && std::isspace(static_cast<unsigned char>(sv.back()))) {
+            sv.remove_suffix(1);
+        }
+        return sv;
+    };
+
+    auto parse_int_prefix = [&trim](std::string_view sv) -> std::optional<int> {
+        sv = trim(sv);
+        if (sv.empty()) return std::nullopt;
+
+        int value = 0;
+        const char* begin = sv.data();
+        const char* end = sv.data() + sv.size();
+        auto [ptr, ec] = std::from_chars(begin, end, value);
+        if (ec != std::errc() || ptr == begin) return std::nullopt;
+        return value;
+    };
+
+    std::string_view sv = trim(text);
+    if (sv.empty()) return std::nullopt;
+
+    const size_t last_colon = sv.find_last_of(':');
+    if (last_colon == std::string_view::npos) return std::nullopt;
+
+    const std::optional<int> last_number = parse_int_prefix(sv.substr(last_colon + 1));
+    if (!last_number.has_value()) return std::nullopt;
+
+    const size_t prev_colon = sv.substr(0, last_colon).find_last_of(':');
+    if (prev_colon == std::string_view::npos) {
+        std::string_view file_part = trim(sv.substr(0, last_colon));
+        if (file_part.empty()) return std::nullopt;
+
+        SourceLocation loc;
+        loc.file = std::string(file_part);
+        loc.line = *last_number;
+        loc.column = 0;
         return loc;
     }
-    return std::nullopt;
+
+    const std::optional<int> maybe_line = parse_int_prefix(sv.substr(prev_colon + 1, last_colon - prev_colon - 1));
+    if (!maybe_line.has_value()) {
+        std::string_view file_part = trim(sv.substr(0, last_colon));
+        if (file_part.empty()) return std::nullopt;
+
+        SourceLocation loc;
+        loc.file = std::string(file_part);
+        loc.line = *last_number;
+        loc.column = 0;
+        return loc;
+    }
+
+    std::string_view file_part = trim(sv.substr(0, prev_colon));
+    if (file_part.empty()) return std::nullopt;
+
+    SourceLocation loc;
+    loc.file = std::string(file_part);
+    loc.line = *maybe_line;
+    loc.column = *last_number;
+    return loc;
 }
 
 } // namespace ai_debugger
