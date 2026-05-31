@@ -2,10 +2,9 @@
 #define AI_DEBUGGER_CALL_GRAPH_ANALYZER_H
 
 #include "StackTraceParser.h"
+#include <optional>
 #include <string>
 #include <vector>
-#include <map>
-#include <set>
 #include <memory>
 
 namespace ai_debugger {

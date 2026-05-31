@@ -1,31 +1,35 @@
 #include "ai_debugger/CallGraphAnalyzer.h"
 #include <algorithm>
 #include <queue>
-#include <set>
 #include <sstream>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace ai_debugger {
 
 struct CallGraphAnalyzer::Impl {
-    std::map<std::string, CallGraphNode> nodes;
+    std::unordered_map<std::string, CallGraphNode> nodes;
     std::vector<CallPattern> patterns;
     std::string intent_summary;
+    std::vector<std::string> node_order;
+    std::unordered_map<std::string, int> first_depth;
 
     void addEdge(const std::string& from, const std::string& to) {
-        if (nodes.find(from) == nodes.end()) {
-            nodes[from] = CallGraphNode();
-            nodes[from].function_name = from;
-        }
-        if (nodes.find(to) == nodes.end()) {
-            nodes[to] = CallGraphNode();
-            nodes[to].function_name = to;
+        auto [from_it, from_inserted] = nodes.try_emplace(from, CallGraphNode{});
+        if (from_inserted) {
+            from_it->second.function_name = from;
         }
 
-        nodes[from].callees.push_back(to);
-        nodes[to].callers.push_back(from);
+        auto [to_it, to_inserted] = nodes.try_emplace(to, CallGraphNode{});
+        if (to_inserted) {
+            to_it->second.function_name = to;
+        }
+
+        from_it->second.callees.push_back(to);
+        to_it->second.callers.push_back(from);
     }
 
-    bool hasPath(const std::string& from, const std::string& to, std::set<std::string>& visited) {
+    bool hasPath(const std::string& from, const std::string& to, std::unordered_set<std::string>& visited) {
         if (from == to) return true;
         if (visited.count(from)) return false;
 
@@ -49,13 +53,35 @@ CallGraphAnalyzer::CallGraphAnalyzer() : impl_(std::make_unique<Impl>()) {}
 CallGraphAnalyzer::~CallGraphAnalyzer() = default;
 
 void CallGraphAnalyzer::buildFromStackTrace(const StackTrace& trace) {
+    impl_->nodes.clear();
+    impl_->patterns.clear();
+    impl_->intent_summary.clear();
+    impl_->node_order.clear();
+    impl_->node_order.reserve(trace.frames.size());
+    impl_->first_depth.clear();
+    impl_->first_depth.reserve(trace.frames.size());
+
+    std::unordered_set<std::string> seen_in_order;
+    seen_in_order.reserve(trace.frames.size());
+
     for (size_t i = 0; i < trace.frames.size(); ++i) {
         const auto& frame = trace.frames[i];
 
-        CallGraphNode node;
-        node.function_name = frame.function_name;
-        node.location = frame.location;
-        node.depth = static_cast<int>(i);
+        auto [node_it, inserted] = impl_->nodes.try_emplace(frame.function_name, CallGraphNode{});
+        CallGraphNode& node = node_it->second;
+
+        if (inserted) {
+            node.function_name = frame.function_name;
+        }
+
+        auto [depth_it, depth_inserted] =
+            impl_->first_depth.try_emplace(frame.function_name, static_cast<int>(i));
+        (void)depth_inserted;
+        node.depth = depth_it->second;
+
+        if (node.location.file.empty() && !frame.location.file.empty()) {
+            node.location = frame.location;
+        }
 
         node.is_library_function =
             frame.function_name.find("std::") == 0 ||
@@ -63,7 +89,9 @@ void CallGraphAnalyzer::buildFromStackTrace(const StackTrace& trace) {
             frame.location.file.find("/usr/") == 0 ||
             frame.location.file.find("C:\\Program Files") == 0;
 
-        impl_->nodes[frame.function_name] = node;
+        if (seen_in_order.insert(frame.function_name).second) {
+            impl_->node_order.push_back(frame.function_name);
+        }
 
         if (i + 1 < trace.frames.size()) {
             const auto& caller_frame = trace.frames[i + 1];
@@ -82,8 +110,22 @@ void CallGraphAnalyzer::buildFromSource(const std::string& source_path) {
 
 std::vector<CallGraphNode> CallGraphAnalyzer::getNodes() const {
     std::vector<CallGraphNode> result;
+    result.reserve(impl_->nodes.size());
+
+    std::unordered_set<std::string> emitted;
+    emitted.reserve(impl_->nodes.size());
+
+    for (const auto& name : impl_->node_order) {
+        auto it = impl_->nodes.find(name);
+        if (it != impl_->nodes.end() && emitted.insert(name).second) {
+            result.push_back(it->second);
+        }
+    }
+
     for (const auto& pair : impl_->nodes) {
-        result.push_back(pair.second);
+        if (emitted.insert(pair.first).second) {
+            result.push_back(pair.second);
+        }
     }
     return result;
 }
@@ -119,7 +161,7 @@ int CallGraphAnalyzer::getCallDepth(const std::string& function) const {
 }
 
 bool CallGraphAnalyzer::isRecursive(const std::string& function) const {
-    std::set<std::string> visited;
+    std::unordered_set<std::string> visited;
     auto it = impl_->nodes.find(function);
     if (it == impl_->nodes.end()) return false;
 
@@ -140,7 +182,7 @@ std::vector<std::string> CallGraphAnalyzer::getRecursionChain(const std::string&
         return chain;
     }
 
-    std::set<std::string> visited;
+    std::unordered_set<std::string> visited;
     std::queue<std::vector<std::string>> paths;
     paths.push({function});
 
@@ -204,8 +246,8 @@ void CallGraphAnalyzer::analyzeRecursion() {
 }
 
 void CallGraphAnalyzer::detectCommonPatterns() {
-    std::set<std::string> alloc_functions = {"malloc", "calloc", "new", "new[]"};
-    std::set<std::string> dealloc_functions = {"free", "delete", "delete[]"};
+    const std::unordered_set<std::string> alloc_functions = {"malloc", "calloc", "new", "new[]"};
+    const std::unordered_set<std::string> dealloc_functions = {"free", "delete", "delete[]"};
 
     bool has_alloc = false;
     bool has_dealloc = false;

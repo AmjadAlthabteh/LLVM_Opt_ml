@@ -1,6 +1,7 @@
 #include "ai_debugger/StackTraceParser.h"
 #include <charconv>
 #include <cctype>
+#include <regex>
 #include <sstream>
 #include <string_view>
 #include <system_error>

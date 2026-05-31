@@ -21,6 +21,36 @@ TEST(CallGraphAnalyzerTest, BuildFromStackTrace) {
     EXPECT_EQ(nodes.size(), 2);
 }
 
+TEST(CallGraphAnalyzerTest, PreservesCallerCalleeEdges) {
+    StackTrace trace;
+
+    StackFrame callee;
+    callee.function_name = "function_a";
+    trace.frames.push_back(callee);
+
+    StackFrame caller;
+    caller.function_name = "function_b";
+    trace.frames.push_back(caller);
+
+    CallGraphAnalyzer analyzer;
+    analyzer.buildFromStackTrace(trace);
+
+    auto node_a = analyzer.getNode("function_a");
+    auto node_b = analyzer.getNode("function_b");
+
+    ASSERT_TRUE(node_a.has_value());
+    ASSERT_TRUE(node_b.has_value());
+
+    EXPECT_EQ(node_a->callers.size(), 1);
+    EXPECT_EQ(node_a->callers[0], "function_b");
+
+    EXPECT_EQ(node_b->callees.size(), 1);
+    EXPECT_EQ(node_b->callees[0], "function_a");
+
+    EXPECT_EQ(node_a->depth, 0);
+    EXPECT_EQ(node_b->depth, 1);
+}
+
 TEST(CallGraphAnalyzerTest, GetNode) {
     StackTrace trace;
 
